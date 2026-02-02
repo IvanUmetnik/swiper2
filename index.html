@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Swiper demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
+  <!-- Link Swiper's CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css" />
+
+  <!-- Demo styles -->
+  <style>
+    html,
+    body {
+      position: relative;
+      height: 100%;
+    }
+
+    body {
+      background: #000;
+      font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .swiper {
+      width: 100%;
+      height: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .swiper-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      display: flex;
+      transition-property: transform;
+      box-sizing: content-box;
+      justify-content: center;
+    }
+
+    .swiper-slide-active {
+      width: 90vw !important;
+      transform: scale(1) !important;
+    }
+
+    .swiper-slide-prev {
+      transform: scale(0.85) !important;
+      width: 100% !important;
+      right: -5vw;
+    }
+
+    .swiper-slide-next {
+      transform: scale(0.85) !important;
+      width: 100% !important;
+      left: -5vw;
+    }
+
+    .swiper-slide {
+      text-align: center;
+      font-size: 18px;
+      background: #444;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transform: scale(0.85);
+      transition: transform 1s ease;
+      border-radius: 16px;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      aspect-ratio: 16 / 9;
+    }
+
+    /* picture is the base layer, video sits above it */
+    .swiper-slide picture,
+    .swiper-slide img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      z-index: 1;
+    }
+
+    .swiper-slide video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 2;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+      pointer-events: none;
+      background: transparent;
+    }
+
+    /* When active: fade video in (visibility toggled immediately so play isn't blocked) */
+    .swiper-slide-active video {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.35s ease;
+    }
+
+    /* When active: picture stays but is visually hidden under the video (keeps layout stable) */
+    .swiper-slide-active picture {
+      /* keep it visible in layout but let video cover it; if you want to fade picture out, you can set opacity here */
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Swiper -->
+  <div class="swiper mySwiper">
+    <div class="swiper-wrapper">
+
+      <div class="swiper-slide slide-1">
+        <picture>
+          <source srcset="3k-slider-pic.webp" type="image/webp">
+          <img src="3k-slider-pic.jpg" alt="3k slider pic">
+        </picture>
+
+        <!-- data-src only: src is set when slide becomes active -->
+        <video muted playsinline preload="none" data-src="3k-slider-video.mp4" type="video/mp4"></video>
+      </div>
+
+
+      <div class="swiper-slide slide-2">
+        <picture>
+          <source srcset="canvas-slider-pic.webp" type="image/webp">
+          <img src="canvas-slider-pic.jpg" alt="canvas slider pic">
+        </picture>
+
+        <video muted playsinline preload="none" data-src="canvas-slider-video.mp4" type="video/mp4"></video>
+      </div>
+
+      <div class="swiper-slide slide-3">
+        <picture>
+          <source srcset="pixel-slider-pic.webp" type="image/webp">
+          <img src="pixel-slider-pic.jpg" alt="pixel slider pic">
+        </picture>
+
+        <video muted playsinline preload="none" data-src="pixel-slider-video.mp4" type="video/mp4"></video>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Swiper JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+
+  <!-- Initialize Swiper -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+      const swiper = new Swiper('.mySwiper', {
+        slidesPerView: 3,
+        centeredSlides: true,
+        initialSlide: 1,
+        loop: false,
+        allowTouchMove: true,
+        grabCursor: true,
+        touchStartForceThreshold: 500,
+        touchMoveThreshold: 999,
+        dragMinThreshold: 100,
+
+        on: {
+          init() {
+            prepareVideoTemplates(this);
+            updateSlidesMedia(this);
+          },
+
+          // in your Swiper config's on: { ... } replace slideChangeTransitionEnd with:
+          slideChangeTransitionEnd() {
+            // if user moved to left-most or right-most visual slot, rotate the DOM
+            if (this.activeIndex === 2) {
+              // user moved right -> rotate "next"
+              rotateSlidesNext(this);
+              return;
+            }
+            if (this.activeIndex === 0) {
+              // user moved left -> rotate "prev"
+              rotateSlidesPrev(this);
+              return;
+            }
+            // normal case: middle slide is active and not an edge move
+            updateSlidesMedia(this);
+          }
+
+
+
+
+
+
+
+        }
+      });
+
+      // ----------------- template preparation -----------------
+      // Turn existing <video data-src="..."> nodes into templates and remove them
+      function prepareVideoTemplates(swiper) {
+        swiper.slides.forEach(slide => {
+          const vid = slide.querySelector('video[data-src]');
+          if (!vid) return;
+          // clone minimal node (no children), store it as template on the slide
+          const t = vid.cloneNode(false);
+          // keep the data-src on the template
+          t.dataset.src = vid.dataset.src;
+          // remove original template from DOM so it's not rendered
+          vid.remove();
+          slide._videoTemplate = t;
+        });
+      }
+
+      // ----------------- create/destroy helpers -----------------
+      function createVideoNodeFromTemplate(slide) {
+        if (!slide._videoTemplate) return null;
+        // create a new video element from template (clone)
+        const v = slide._videoTemplate.cloneNode(false);
+        v.muted = true;
+        v.playsInline = true;
+        v.setAttribute('playsinline', ''); // for good measure
+        v.setAttribute('muted', '');
+        v.setAttribute('preload', 'none');
+        v.style.opacity = '0';
+        v.style.visibility = 'hidden';
+        v.style.transition = ''; // controlled by CSS class rules
+        // set src and load when we actually append/play
+        return v;
+      }
+
+      function appendAndPlayVideo(slide) {
+        // if a live video already exists on this slide, reuse it
+        if (slide._liveVideo) {
+          tryPlay(slide._liveVideo, slide._liveVideo.dataset.src);
+          return;
+        }
+
+        const v = createVideoNodeFromTemplate(slide);
+        if (!v) return;
+        const url = slide._videoTemplate.dataset.src;
+        v.dataset.src = url;
+        // append to slide (it will be positioned above the picture by CSS)
+        slide.appendChild(v);
+        slide._liveVideo = v;
+
+        // actually set src, load then play (Safari-friendly fallback)
+        v.src = url;
+        try { v.load(); } catch (e) { }
+        // ensure visible before attempting play (avoid display:none autoplay issues)
+        v.style.visibility = 'visible';
+
+        const p = v.play();
+        if (p !== undefined) {
+          p.catch(() => {
+            const onCanPlay = () => {
+              v.removeEventListener('canplay', onCanPlay);
+              v.play().catch(() => { });
+            };
+            v.addEventListener('canplay', onCanPlay, { once: true });
+          });
+        }
+      }
+
+      function removeAndDestroyVideo(slide) {
+        const v = slide._liveVideo;
+        if (!v) return;
+        try { v.pause(); } catch (e) { }
+        try { v.currentTime = 0; } catch (e) { }
+        // remove src to stop downloads / free memory
+        if (v.src) {
+          try { v.removeAttribute('src'); } catch (e) { }
+          try { v.load(); } catch (e) { }
+        }
+        // remove node from DOM so no leftover frame shows
+        v.remove();
+        slide._liveVideo = null;
+      }
+
+      // small helper that attempts play with canplay fallback
+      function tryPlay(video, url) {
+        if (!video) return;
+        if (url && !video.src) {
+          video.src = url;
+          try { video.load(); } catch (e) { }
+        }
+        video.style.visibility = 'visible';
+        const p = video.play();
+        if (p !== undefined) {
+          p.catch(() => {
+            const onCanPlay = () => {
+              video.removeEventListener('canplay', onCanPlay);
+              video.play().catch(() => { });
+            };
+            video.addEventListener('canplay', onCanPlay, { once: true });
+          });
+        }
+      }
+
+      function rotateSlidesNext(swiper) {
+        const wrapper = swiper.wrapperEl;
+        // NodeList is live; convert to array for stable refs
+        const slides = Array.from(wrapper.querySelectorAll('.swiper-slide'));
+        if (slides.length <= 1) return;
+
+        // move first slide to the end
+        const first = slides[0];
+        wrapper.appendChild(first);
+
+        // tell Swiper to refresh internals
+        swiper.update();
+
+        // go back to center slot (index 1) without animation and update media
+        swiper.slideTo(1, 0, false);
+        updateSlidesMedia(swiper);
+      }
+
+      function rotateSlidesPrev(swiper) {
+        const wrapper = swiper.wrapperEl;
+        const slides = Array.from(wrapper.querySelectorAll('.swiper-slide'));
+        if (slides.length <= 1) return;
+
+        // move last slide to the front
+        const last = slides[slides.length - 1];
+        const first = slides[0];
+        wrapper.insertBefore(last, first);
+
+        // refresh Swiper internals
+        swiper.update();
+
+        swiper.slideTo(1, 0, false);
+        updateSlidesMedia(swiper);
+      }
+
+
+
+
+      // ----------------- main update routine (create/destroy) -----------------
+      function updateSlidesMedia(swiper) {
+        swiper.slides.forEach(slide => {
+          const isActive = slide.classList.contains('swiper-slide-active');
+
+          if (isActive) {
+            // create a fresh video element and play it
+            appendAndPlayVideo(slide);
+            // ensure the CSS fade-in is applied (the class sets opacity:1/visibility visible)
+            if (slide._liveVideo) {
+              slide._liveVideo.style.opacity = '1';
+              slide._liveVideo.style.visibility = 'visible';
+            }
+          } else {
+            // ensure non-active slides have no live video nodes
+            removeAndDestroyVideo(slide);
+          }
+        });
+      }
+
+    });
+  </script>
+
+
+</body>
+
+</html>
