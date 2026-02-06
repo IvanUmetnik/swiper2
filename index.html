@@ -393,6 +393,11 @@
               slide._liveVideo.style.opacity = '1';
               slide._liveVideo.style.visibility = 'visible';
             }
+            else {
+              if (slide._liveVideo) {
+              deactivateVideoKeepSrc(slide._liveVideo);
+              }
+            }    
           }
 
         });
