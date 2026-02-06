@@ -308,8 +308,10 @@
 
         v.src = url;
         try { v.load(); } catch (e) { }
-        v.style.visibility = 'visible';
 
+        
+/*         v.style.visibility = 'visible';
+ */
         const p = v.play();
         if (p !== undefined) {
           p.catch(() => {
