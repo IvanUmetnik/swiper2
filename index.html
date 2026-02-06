@@ -6,7 +6,8 @@
   <title>Swiper demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
   <!-- Link Swiper's CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper.min.css" />
+<script src="https://unpkg.com/@rive-app/canvas@2.24.0"></script>
 
   <!-- Demo styles -->
   <style>
@@ -26,7 +27,6 @@
     }
 
     .swiper {
-      width: 100%;
       height: 100%;
       margin-left: auto;
       margin-right: auto;
@@ -43,42 +43,44 @@
       justify-content: center;
     }
 
-    .swiper-slide-active {
-      width: 90vw !important;
-      transform: scale(1) !important;
-    }
-
-    .swiper-slide-prev {
-      transform: scale(0.85) !important;
-      width: 100% !important;
-      right: -5vw;
-    }
-
-    .swiper-slide-next {
-      transform: scale(0.85) !important;
-      width: 100% !important;
-      left: -5vw;
-    }
-
     .swiper-slide {
+      display: flex;
+      justify-content: center;
+    }
+
+    .swiper-slide .slide-inner {
       text-align: center;
       font-size: 18px;
       background: #444;
       display: flex;
       justify-content: center;
       align-items: center;
-      transform: scale(0.85);
-      transition: transform 1s ease;
       border-radius: 16px;
       overflow: hidden;
       background-size: cover;
       background-position: center;
       position: relative;
       aspect-ratio: 16 / 9;
+      transition: transform 0.35s ease;
+      will-change: transform;
     }
 
-    .swiper-slide picture,
-    .swiper-slide img {
+    .swiper-slide-active {
+      transform: scale(1) !important;
+      width: 90% !important;
+    }
+
+    .swiper-slide-active .slide-inner {
+      width: 100% !important;
+    }
+
+    .swiper-slide-next,
+    .swiper-slide-prev {
+      transform: scale(0.85) !important;
+    }
+
+    .slide-inner picture,
+    .slide-inner img {
       width: 100%;
       height: 100%;
       display: block;
@@ -86,7 +88,7 @@
       z-index: 1;
     }
 
-    .swiper-slide video {
+    .slide-inner video {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -100,54 +102,133 @@
       background: transparent;
     }
 
-    .swiper-slide-active video {
+    .swiper-slide-active .slide-inner video {
       opacity: 1;
       visibility: visible;
       transition: opacity 0.35s ease;
     }
 
-    .swiper-slide-active picture {
+    .overlay {
+      display: flex;
+      z-index: 3;
+      min-width: 100%;
+      justify-content: space-between;
+      align-self: flex-end;
+      text-align: left;
     }
+
+    .overlay-btn {
+      display: none;
+      cursor: pointer;
+    }
+
+
+
+
+    @media screen and (max-width: 992px) {
+      .overlay-btn {
+        display: block;
+      }
+      .rive-slider-wrapper {
+        display: none;
+      }
+      .overlay {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .overlay p {
+        display: none;
+      }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
   </style>
 </head>
 
 <body>
+
+  <div style="min-height: 60px; text-align: center; margin: auto; padding: 0px 4vh;">
+    <h1>helo titlesss!!!!!!</h1>
+  </div>
+
+
+
+
   <!-- Swiper -->
   <div class="swiper mySwiper">
     <div class="swiper-wrapper">
 
       <div class="swiper-slide slide-1">
-        <picture>
-          <source srcset="3k-slider-pic.webp" type="image/webp">
-          <img src="3k-slider-pic.jpg" alt="3k slider pic">
-        </picture>
+        <div class="slide-inner">
+          <div class="overlay">
+            <div>
+              <h2>Crumb 3K: A Thank You, Animated</h2>
+              <p>Milestones usually get fireworks or confetti. Ours got keyframes, motion, and one big fat emoji that says: Thank you.</p>
+            </div>
+            <div class="overlay-btn" data-href="https://crumb.tv/crumb-3k/">
+              <img src="rive_assets/More_003.svg" alt="More">
+            </div>
 
-        <video muted playsinline loop preload="none" data-src="3k-slider-video.mp4" type="video/mp4">
-        </video>
+            <div class="rive-slider-wrapper">
+                        <canvas class="rive-slider-canvas" data-rive-src="rive_assets/More_003.riv"
+                            data-href="https://crumb.tv/crumb-3k/"></canvas>
+            </div>
+          </div>
+
+
+
+          <picture>
+            <source srcset="3k-slider-pic.webp" type="image/webp">
+            <img src="3k-slider-pic.jpg" alt="3k slider pic">
+          </picture>
+          <video muted playsinline loop preload="none" data-src="3k-slider-video.mp4" type="video/mp4">
+          </video>
+        </div>
       </div>
 
 
       <div class="swiper-slide slide-2">
-        <picture>
-          <source srcset="canvas-slider-pic.webp" type="image/webp">
-          <img src="canvas-slider-pic.jpg" alt="canvas slider pic">
-        </picture>
+        <div class="slide-inner">
 
-        <video muted playsinline loop preload="none" data-src="canvas-slider-video.mp4" type="video/mp4">
-        </video>
+          <picture>
+            <source srcset="canvas-slider-pic.webp" type="image/webp">
+            <img src="canvas-slider-pic.jpg" alt="canvas slider pic">
+          </picture>
+
+          <video muted playsinline loop preload="none" data-src="canvas-slider-video.mp4" type="video/mp4">
+          </video>
+        </div>
       </div>
 
       <div class="swiper-slide slide-3">
-        <picture>
-          <source srcset="pixel-slider-pic.webp" type="image/webp">
-          <img src="pixel-slider-pic.jpg" alt="pixel slider pic">
-        </picture>
+        <div class="slide-inner">
 
-        <video muted playsinline loop preload="none" data-src="pixel-slider-video.mp4" type="video/mp4">
-        </video>
+          <picture>
+            <source srcset="pixel-slider-pic.webp" type="image/webp">
+            <img src="pixel-slider-pic.jpg" alt="pixel slider pic">
+          </picture>
+
+          <video muted playsinline loop preload="none" data-src="pixel-slider-video.mp4" type="video/mp4">
+          </video>
+        </div>
       </div>
 
     </div>
+  </div>
+
+  <div style="min-height: 60px; text-align: center; margin: auto; padding: 0px 4vh;">
+    <h1>ispod swipera!</h1>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
@@ -206,6 +287,10 @@
         v.setAttribute('playsinline', '');
         v.setAttribute('muted', '');
         v.setAttribute('preload', 'none');
+        v.defaultMuted = true;
+        v.autoplay = true;
+        v.setAttribute('webkit-playsinline', '');
+        v.preload = 'metadata';
         v.style.opacity = '0';
         v.style.visibility = 'hidden';
         v.style.transition = '';
@@ -222,7 +307,8 @@
         if (!v) return;
         const url = slide._videoTemplate.dataset.src;
         v.dataset.src = url;
-        slide.appendChild(v);
+        const container = slide.querySelector('.slide-inner') || slide;
+        container.appendChild(v);
         slide._liveVideo = v;
 
         v.src = url;
@@ -243,8 +329,8 @@
 
       function deactivateVideoKeepSrc(video) {
         if (!video) return;
-        try { video.pause(); } catch(e) {}
-        try { video.currentTime = 0; } catch(e) {}
+        try { video.pause(); } catch (e) { }
+        try { video.currentTime = 0; } catch (e) { }
         video.style.opacity = '0';
         setTimeout(() => video.style.visibility = 'hidden', 360);
       }
@@ -264,7 +350,7 @@
               video.removeEventListener('canplay', onCanPlay);
               video.play().catch(() => { });
             };
-            video.addEventListener('canplay', onCanPlay, { once: true });
+            video.addEventListener('canplay', onCanPlay, { once: ssstrue });
           });
         }
       }
@@ -309,13 +395,65 @@
               slide._liveVideo.style.opacity = '1';
               slide._liveVideo.style.visibility = 'visible';
             }
-          } 
-          
+          }
+
         });
       }
 
     });
   </script>
+
+
+  
+<script>
+    document.querySelectorAll('.rive-slider-canvas').forEach(canvas => {
+        const riveSrc = canvas.getAttribute('data-rive-src');
+        const clickUrl = canvas.getAttribute('data-href');
+
+        const riveInstance = new rive.Rive({
+            src: riveSrc,
+            canvas: canvas,
+            autoplay: true,
+            stateMachines: ["StateMachine"],
+            isTouchScrollEnabled: true,
+            onLoad: () => {
+                riveInstance.resizeDrawingSurfaceToCanvas();
+            }
+        });
+
+        let isHovering = false;
+        function onRiveEvent(riveEvent) {
+            if (riveEvent.data.name === "Hover_On") {
+                isHovering = true;
+                canvas.style.cursor = "pointer";
+            } else if (riveEvent.data.name === "Hover_Off") {
+                isHovering = false;
+                canvas.style.cursor = "default";
+            }
+        }
+        riveInstance.on(rive.EventType.RiveEvent, onRiveEvent);
+
+        canvas.addEventListener("click", function () {
+            window.location.href = clickUrl;
+        });
+
+        const imgWrapper = canvas.closest('.overlay').querySelector('.image-slider-wrapper');
+        if (imgWrapper) {
+            imgWrapper.addEventListener("click", function () {
+                window.location.href = clickUrl;
+            });
+        }
+    });
+
+    // Resize Rive canvases on window resize
+    window.addEventListener("resize", () => {
+        document.querySelectorAll('.rive-slider-canvas').forEach(canvas => {
+            if (canvas.riveInstance) {
+                canvas.riveInstance.resizeDrawingSurfaceToCanvas();
+            }
+        });
+    });
+</script>
 
 
 </body>
