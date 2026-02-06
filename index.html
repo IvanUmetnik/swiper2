@@ -283,10 +283,8 @@
         if (!slide._videoTemplate) return null;
         const v = slide._videoTemplate.cloneNode(false);
         v.muted = true;
-        v.playsInline = true;
         v.setAttribute('playsinline', '');
         v.setAttribute('muted', '');
-        v.setAttribute('preload', 'none');
         v.defaultMuted = true;
         v.autoplay = true;
         v.setAttribute('webkit-playsinline', '');
